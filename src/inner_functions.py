@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from math import inf
 from aggregate_functions import InnerFunction
 
-count_rows = InnerFunction(apply=lambda _: 1, merge=lambda a, b: a + b, identity=0)
+count_rows = InnerFunction[int, int](apply=lambda _: 1, merge=lambda a, b: a + b, identity=0)
 
 
 @dataclass
