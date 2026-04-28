@@ -8,7 +8,7 @@ R = TypeVar("R")
 
 
 @dataclass
-class InnerFunction(Generic[T,S]):
+class InnerFunction(Generic[T, S]):
     """
     The function that runs at a node for an algebraic aggregate function
     """
@@ -25,7 +25,7 @@ class InnerFunction(Generic[T,S]):
 
 
 @dataclass
-class OuterFunction(Generic[S,R]):
+class OuterFunction(Generic[S, R]):
     """
     The function running on an aggregator that aggregates intermediate values to produce the final result of an algebraic aggregate function
     """
