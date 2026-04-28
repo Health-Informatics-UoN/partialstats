@@ -1,4 +1,4 @@
-from typing import Callable, Iterable, Protocol, TypeVar
+from typing import Callable, Iterable, Generic, TypeVar
 from dataclasses import dataclass
 from functools import reduce
 
@@ -8,10 +8,11 @@ R = TypeVar("R")
 
 
 @dataclass
-class InnerFunction[T, S](Protocol):
+class InnerFunction(Generic[T,S]):
     """
     The function that runs at a node for an algebraic aggregate function
     """
+
     apply: Callable[[T], S]
     merge: Callable[[S, S], S]
     identity: S
@@ -22,11 +23,13 @@ class InnerFunction[T, S](Protocol):
         """
         return reduce(self.merge, map(self.apply, rows), self.identity)
 
+
 @dataclass
-class OuterFunction[S, R](Protocol):
+class OuterFunction(Generic[S,R]):
     """
     The function running on an aggregator that aggregates intermediate values to produce the final result of an algebraic aggregate function
     """
+
     aggregate: Callable[[S, S], S]
     identity: S
     finalise: Callable[[S], R]
@@ -37,11 +40,13 @@ class OuterFunction[S, R](Protocol):
         """
         return self.finalise(reduce(self.aggregate, intermediates))
 
+
 @dataclass
-class AlgebraicAggregate[T, S, R](Protocol):
+class AlgebraicAggregate(Generic[T, S, R]):
     """
     Applies an algebraic aggregate function to nodes to aggregate some statistic
     """
+
     inner_function: InnerFunction[T, S]
     outer_function: OuterFunction[S, R]
 
@@ -51,4 +56,3 @@ class AlgebraicAggregate[T, S, R](Protocol):
         """
         intermediates: Iterable[S] = map(self.inner_function.run, data)
         return self.outer_function.run(intermediates)
-
