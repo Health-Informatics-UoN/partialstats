@@ -1,34 +1,51 @@
-from math import inf
+from math import inf, sqrt
 
-from .aggregate_functions import OuterFunction
-from .inner_functions import SumIntermediate, SumOfSquaresIntermediate
+from .core import Combiner
+from .partials import SumPartial, SumOfSquaresPartial
 
-sum_intermediates = OuterFunction[float, float](
-        aggregate=lambda a, b: a + b,
-        identity=0,
-        finalise=lambda x: x
-        )
 
-gather_avg_intermediates = OuterFunction[SumIntermediate, float](
-        aggregate=lambda a, b: SumIntermediate(sum=a.sum + b.sum, count=a.count + b.count),
-        identity=SumIntermediate(0,0),
-        finalise=lambda x: x.sum/x.count
-        )
+sum_combiner = Combiner[float, float](
+    aggregate=lambda a, b: a + b,
+    identity=0,
+    finalise=lambda x: x,
+)
+"""Combines partial sums into a total sum."""
 
-gather_var_intermediates = OuterFunction[SumOfSquaresIntermediate, float](
-        aggregate=lambda a, b: SumOfSquaresIntermediate(sum=a.sum+b.sum, sumsq=a.sumsq + b.sumsq, count = a.count + b.count),
-        identity=SumOfSquaresIntermediate(0,0,0),
-        finalise=lambda x: x.sumsq/x.count - (x.sum/x.count * x.sum/x.count)
-        )
+mean_combiner = Combiner[SumPartial, float](
+    aggregate=lambda a, b: SumPartial(sum=a.sum + b.sum, count=a.count + b.count),
+    identity=SumPartial(0, 0),
+    finalise=lambda x: x.sum / x.count,
+)
+"""Combines SumPartials into a global mean."""
 
-max_intermediates = OuterFunction[float, float](
-        aggregate=lambda a,b: a if a>b else b,
-        identity=-inf,
-        finalise=lambda x: x
-        )
+variance_combiner = Combiner[SumOfSquaresPartial, float](
+    aggregate=lambda a, b: SumOfSquaresPartial(
+        sum=a.sum + b.sum,
+        sumsq=a.sumsq + b.sumsq,
+        count=a.count + b.count,
+    ),
+    identity=SumOfSquaresPartial(0, 0, 0),
+    finalise=lambda x: x.sumsq / x.count - (x.sum / x.count) ** 2,
+)
+"""Combines SumOfSquaresPartials into a global population variance."""
 
-min_intermediates = OuterFunction[float, float](
-        aggregate=lambda a,b: a if a<b else b,
-        identity=inf,
-        finalise=lambda x: x
-        )
+std_combiner = Combiner[SumOfSquaresPartial, float](
+    aggregate=variance_combiner.aggregate,
+    identity=SumOfSquaresPartial(0, 0, 0),
+    finalise=lambda x: sqrt(x.sumsq / x.count - (x.sum / x.count) ** 2),
+)
+"""Combines SumOfSquaresPartials into a global population standard deviation."""
+
+max_combiner = Combiner[float, float](
+    aggregate=lambda a, b: a if a > b else b,
+    identity=-inf,
+    finalise=lambda x: x,
+)
+"""Combines partition maxima into a global maximum."""
+
+min_combiner = Combiner[float, float](
+    aggregate=lambda a, b: a if a < b else b,
+    identity=inf,
+    finalise=lambda x: x,
+)
+"""Combines partition minima into a global minimum."""

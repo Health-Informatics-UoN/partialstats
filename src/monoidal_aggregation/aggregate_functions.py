@@ -8,51 +8,73 @@ R = TypeVar("R")
 
 
 @dataclass
-class InnerFunction(Generic[T, S]):
+class PartialReducer(Generic[T, S]):
     """
-    The function that runs at a node for an algebraic aggregate function
+    Runs at each node (partition) to reduce its rows into a partial result.
+
+    Type parameters:
+        T: the type of each input row
+        S: the type of the partial result (must form a commutative monoid under `merge`)
     """
 
     apply: Callable[[T], S]
     merge: Callable[[S, S], S]
     identity: S
 
-    def run(self, rows: Iterable[T]) -> S:
+    def reduce(self, rows: Iterable[T]) -> S:
         """
-        Calls the `apply` function on the rows of the data, then uses the `merge` function to produce an intermediate
+        Applies `apply` to each row, then folds the results together using `merge`.
         """
         return reduce(self.merge, map(self.apply, rows), self.identity)
 
 
 @dataclass
-class OuterFunction(Generic[S, R]):
+class Combiner(Generic[S, R]):
     """
-    The function running on an aggregator that aggregates intermediate values to produce the final result of an algebraic aggregate function
+    Runs on the aggregator to combine partial results from all nodes into
+    the final statistic.
+
+    Type parameters:
+        S: the type of the partial results produced by a PartialReducer
+        R: the type of the final result
     """
 
     aggregate: Callable[[S, S], S]
     identity: S
     finalise: Callable[[S], R]
 
-    def run(self, intermediates: Iterable[S]) -> R:
+    def combine(self, partials: Iterable[S]) -> R:
         """
-        Calls the `aggregate` function on the intermediates, then uses `finalise` to produce the final result
+        Folds the partial results together using `aggregate`, then calls `finalise`.
         """
-        return self.finalise(reduce(self.aggregate, intermediates))
+        return self.finalise(reduce(self.aggregate, partials, self.identity))
 
 
 @dataclass
-class AlgebraicAggregate(Generic[T, S, R]):
+class DistributedStat(Generic[T, S, R]):
     """
-    Applies an algebraic aggregate function to nodes to aggregate some statistic
+    A fully specified distributed statistic: a PartialReducer paired with a Combiner.
+
+    Each partition runs the reducer; the aggregator runs the combiner.
+
+    Type parameters:
+        T: input row type
+        S: partial result type
+        R: final result type
     """
 
-    inner_function: InnerFunction[T, S]
-    outer_function: OuterFunction[S, R]
+    reducer: PartialReducer[T, S]
+    combiner: Combiner[S, R]
 
-    def run(self, data: Iterable[Iterable[T]]) -> R:
+    def compute(self, partitions: Iterable[Iterable[T]]) -> R:
         """
-        Computes the aggregate function
+        Computes the statistic over partitioned data.
+
+        Args:
+            partitions: an iterable of partitions, each partition being an iterable of rows.
+
+        Returns:
+            The final aggregated statistic.
         """
-        intermediates: Iterable[S] = map(self.inner_function.run, data)
-        return self.outer_function.run(intermediates)
+        partials: Iterable[S] = map(self.reducer.reduce, partitions)
+        return self.combiner.combine(partials)
