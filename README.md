@@ -20,40 +20,31 @@ This works because each statistic's partial result forms a [commutative monoid](
 ## Quick start
 
 ```python
-from partialstats import DistributedStat
-from partialstats.reducers import sum_reducer, sum_of_squares_reducer
-from partialstats.combiners import mean_combiner, variance_combiner
+from partialstats.reference import DistributedStat, sum_reducer, sum_of_squares_reducer
+from partialstats.combiners import mean_combiner, variance_combiner, std_combiner
 
-partitions = [
-    [1.0, 2.0, 3.0],
-    [4.0, 5.0],
-    [6.0, 7.0, 8.0, 9.0, 10.0],
-]
+# Compute the mean of values spread across partitions
+distributed_mean = DistributedStat(sum_reducer, mean_combiner)
 
-mean     = DistributedStat(sum_reducer,            mean_combiner).compute(partitions)
-variance = DistributedStat(sum_of_squares_reducer, variance_combiner).compute(partitions)
+# Compute variance and std dev (same reducer, different combiner)
+distributed_variance = DistributedStat(sum_of_squares_reducer, variance_combiner)
+distributed_std = DistributedStat(sum_of_squares_reducer, std_combiner)
 
-print(mean)      # 5.5
-print(variance)  # 8.25
+if __name__ == "__main__":
+    partitions = [
+        [1.0, 2.0, 3.0],
+        [4.0, 5.0],
+        [6.0, 7.0, 8.0, 9.0, 10.0],
+    ]
+
+    print(f"Mean:     {distributed_mean.compute(partitions)}")       # 5.5
+    print(f"Variance: {distributed_variance.compute(partitions)}")   # 8.25
+    print(f"Std dev:  {distributed_std.compute(partitions)}")        # ~2.872
 ```
 
 ---
 
 ## Core concepts
-
-### `PartialReducer[T, S]`
-
-Runs on each partition. Converts rows of type `T` into a partial result of type `S`.
-
-```python
-from partialstats import PartialReducer
-
-count_reducer = PartialReducer[object, int](
-    apply=lambda _: 1,        # map each row to a value
-    merge=lambda a, b: a + b, # fold values together
-    identity=0,               # starting value
-)
-```
 
 ### `Combiner[S, R]`
 
@@ -69,16 +60,6 @@ sum_combiner = Combiner[float, float](
 )
 ```
 
-### `DistributedStat[T, S, R]`
-
-Pairs a `PartialReducer` with a `Combiner` and exposes a single `.compute(partitions)` method.
-
-```python
-from partialstats import DistributedStat
-
-stat = DistributedStat(reducer=my_reducer, combiner=my_combiner)
-result = stat.compute(partitions)
-```
 
 ---
 
