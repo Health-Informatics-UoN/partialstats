@@ -17,14 +17,6 @@ This works because each statistic's partial result forms a [commutative monoid](
 
 ---
 
-## Install
-
-```
-pip install partialstats
-```
-
----
-
 ## Quick start
 
 ```python
@@ -137,17 +129,3 @@ approx_median_combiner = Combiner[list[float], float](
     finalise=statistics.median,
 )
 ```
-
-> **Tip**: not every statistic has a perfect distributed form. When in doubt, check whether your partial result type is a commutative monoid — i.e. whether `merge(a, merge(b, c)) == merge(merge(a, b), c)` and `merge(a, b) == merge(b, a)`.
-
----
-
-## Why "partial results" and not "intermediates"?
-
-"Intermediate" implies a step in a pipeline. "Partial" captures the actual meaning: each node has *part of the answer*, and combining the parts gives the whole. The monoid structure is what makes combining valid — but you don't need to know that to use the library.
-
----
-
-## Licence
-
-MIT
