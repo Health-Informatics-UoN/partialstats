@@ -1,5 +1,4 @@
-from partialstats import DistributedStat
-from partialstats.reducers import sum_reducer, sum_of_squares_reducer
+from partialstats.reference import DistributedStat, sum_reducer, sum_of_squares_reducer
 from partialstats.combiners import mean_combiner, variance_combiner, std_combiner
 
 # Compute the mean of values spread across partitions

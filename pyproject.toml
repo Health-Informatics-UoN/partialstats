@@ -1,5 +1,5 @@
 [project]
-name = "monoidal-aggregation"
+name = "partialstats"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -13,5 +13,5 @@ requires = ["uv_build>=0.11.8,<0.12"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
-module-name="monoidal_aggregation"
+module-name="partialstats"
 module-root="src"
