@@ -1,7 +1,7 @@
 from math import inf
 
-from aggregate_functions import OuterFunction
-from inner_functions import SumIntermediate, SumOfSquaresIntermediate
+from .aggregate_functions import OuterFunction
+from .inner_functions import SumIntermediate, SumOfSquaresIntermediate
 
 sum_intermediates = OuterFunction[float, float](
         aggregate=lambda a, b: a + b,

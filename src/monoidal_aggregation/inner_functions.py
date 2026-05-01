@@ -1,22 +1,8 @@
-from dataclasses import dataclass
 from math import inf
-from aggregate_functions import InnerFunction
+from .aggregate_functions import InnerFunction
+from .intermediates import SumIntermediate, SumOfSquaresIntermediate
 
 count_rows = InnerFunction[int, int](apply=lambda _: 1, merge=lambda a, b: a + b, identity=0)
-
-
-@dataclass
-class SumIntermediate:
-    sum: float
-    count: int
-
-
-@dataclass
-class SumOfSquaresIntermediate:
-    sum: float
-    sumsq: float
-    count: int
-
 
 sum_rows = InnerFunction[float, SumIntermediate](
     apply=lambda x: SumIntermediate(sum=x, count=1),
