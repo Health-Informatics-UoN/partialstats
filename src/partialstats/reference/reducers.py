@@ -2,7 +2,7 @@ from typing import Callable, Iterable, Generic, TypeVar
 from dataclasses import dataclass
 from functools import reduce
 
-from ..partials import Partial, SumPartial, SumOfSquaresPartial, numeric
+from ..partials import Partial, SumPartial, SumOfSquaresPartial, scalar
 from ..combiners import Combiner
 
 T = TypeVar("T")
@@ -31,8 +31,8 @@ class PartialReducer(Generic[T, S]):
 
 # Reducer implementations for reference
 
-count_reducer = PartialReducer[object, numeric.CountPartial](
-    apply=lambda _: numeric.CountPartial(1),
+count_reducer = PartialReducer[object, scalar.CountPartial](
+    apply=lambda _: scalar.CountPartial(1),
 )
 """Counts the number of rows in each partition."""
 
@@ -46,13 +46,13 @@ sum_of_squares_reducer = PartialReducer[float, SumOfSquaresPartial](
 )
 """Accumulates sum, sum of squares, and count — sufficient to compute variance and std dev."""
 
-max_reducer = PartialReducer[float, numeric.MaxPartial](
-    apply=lambda x: numeric.MaxPartial(x),
+max_reducer = PartialReducer[float, scalar.MaxPartial](
+    apply=lambda x: scalar.MaxPartial(x),
 )
 """Tracks the running maximum value."""
 
-min_reducer = PartialReducer[float, numeric.MinPartial](
-    apply=lambda x: numeric.MinPartial(x),
+min_reducer = PartialReducer[float, scalar.MinPartial](
+    apply=lambda x: scalar.MinPartial(x),
 )
 """Tracks the running minimum value."""
 
