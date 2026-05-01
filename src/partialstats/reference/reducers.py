@@ -2,8 +2,11 @@ from typing import Callable, Iterable, Generic, TypeVar
 from dataclasses import dataclass
 from functools import reduce
 
+from ..partials import Partial, SumPartial, SumOfSquaresPartial, numeric
+from ..combiners import Combiner
+
 T = TypeVar("T")
-S = TypeVar("S")
+S = TypeVar("S", bound=Partial)
 R = TypeVar("R")
 
 
@@ -18,36 +21,40 @@ class PartialReducer(Generic[T, S]):
     """
 
     apply: Callable[[T], S]
-    merge: Callable[[S, S], S]
-    identity: S
 
     def reduce(self, rows: Iterable[T]) -> S:
         """
         Applies `apply` to each row, then folds the results together using `merge`.
         """
-        return reduce(self.merge, map(self.apply, rows), self.identity)
+        first, *rest = map(self.apply, rows)
+        return reduce(lambda a, b: a + b, rest, first)
 
+# Reducer implementations for reference
 
-@dataclass
-class Combiner(Generic[S, R]):
-    """
-    Runs on the aggregator to combine partial results from all nodes into
-    the final statistic.
+count_reducer = PartialReducer[object, numeric.CountPartial](
+    apply=lambda _: numeric.CountPartial(1),
+)
+"""Counts the number of rows in each partition."""
 
-    Type parameters:
-        S: the type of the partial results produced by a PartialReducer
-        R: the type of the final result
-    """
+sum_reducer = PartialReducer[float, SumPartial](
+    apply=lambda x: SumPartial(sum=x, count=1),
+)
+"""Accumulates the sum and count of values — sufficient to compute mean."""
 
-    aggregate: Callable[[S, S], S]
-    identity: S
-    finalise: Callable[[S], R]
+sum_of_squares_reducer = PartialReducer[float, SumOfSquaresPartial](
+    apply=lambda x: SumOfSquaresPartial(sum=x, sumsq=x * x, count=1),
+)
+"""Accumulates sum, sum of squares, and count — sufficient to compute variance and std dev."""
 
-    def combine(self, partials: Iterable[S]) -> R:
-        """
-        Folds the partial results together using `aggregate`, then calls `finalise`.
-        """
-        return self.finalise(reduce(self.aggregate, partials, self.identity))
+max_reducer = PartialReducer[float, numeric.MaxPartial](
+    apply=lambda x: numeric.MaxPartial(x),
+)
+"""Tracks the running maximum value."""
+
+min_reducer = PartialReducer[float, numeric.MinPartial](
+    apply=lambda x: numeric.MinPartial(x),
+)
+"""Tracks the running minimum value."""
 
 
 @dataclass
