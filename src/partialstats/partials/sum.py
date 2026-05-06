@@ -2,9 +2,11 @@ from typing import Self
 from dataclasses import dataclass
 from .protocol import Partial
 
+
 @dataclass
 class SumPartial(Partial):
     """Partial result carrying a running sum and count."""
+
     sum: float
     count: int
 

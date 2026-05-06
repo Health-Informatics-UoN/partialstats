@@ -29,6 +29,7 @@ class PartialReducer(Generic[T, S]):
         first, *rest = map(self.apply, rows)
         return reduce(lambda a, b: a + b, rest, first)
 
+
 # Reducer implementations for reference
 
 count_reducer = PartialReducer[object, scalar.CountPartial](

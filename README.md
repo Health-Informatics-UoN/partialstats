@@ -90,23 +90,5 @@ sum_combiner = Combiner[float, float](
 
 Reducers and combiners are plain dataclasses — just provide the functions.
 
-**Example: median of medians (approximate distributed median)**
-
-```python
-import statistics
-from partialstats import PartialReducer, Combiner, DistributedStat
-
-# Each partition computes its own median
-local_median_reducer = PartialReducer[float, float](
-    apply=lambda x: x,
-    merge=lambda a, b: (a + b) / 2,   # placeholder; see note below
-    identity=0.0,
-)
-
-# Combine local medians with a simple mean (approximate)
-approx_median_combiner = Combiner[list[float], float](
-    aggregate=lambda a, b: a + b,
-    identity=[],
-    finalise=statistics.median,
-)
-```
+A `Partial` isn't hard to write either.
+It's just a class that implements the `__add__` special method so that you can combine partial results.

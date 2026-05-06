@@ -17,4 +17,3 @@ std_combiner = Combiner[SumOfSquaresPartial, float](
     finalise=lambda x: sqrt(x.sumsq / x.count - (x.sum / x.count) ** 2),
 )
 """Combines SumOfSquaresPartials into a global population standard deviation."""
-

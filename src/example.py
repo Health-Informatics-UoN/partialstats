@@ -15,6 +15,6 @@ if __name__ == "__main__":
         [6.0, 7.0, 8.0, 9.0, 10.0],
     ]
 
-    print(f"Mean:     {distributed_mean.compute(partitions)}")       # 5.5
-    print(f"Variance: {distributed_variance.compute(partitions)}")   # 8.25
-    print(f"Std dev:  {distributed_std.compute(partitions)}")        # ~2.872
+    print(f"Mean:     {distributed_mean.compute(partitions)}")  # 5.5
+    print(f"Variance: {distributed_variance.compute(partitions)}")  # 8.25
+    print(f"Std dev:  {distributed_std.compute(partitions)}")  # ~2.872
