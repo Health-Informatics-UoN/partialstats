@@ -2,7 +2,8 @@ from typing import TypeVar, Generic, Iterable, Callable
 from dataclasses import dataclass
 from functools import reduce
 
-S = TypeVar("S")
+from ..partials.protocol import S
+
 R = TypeVar("R")
 
 

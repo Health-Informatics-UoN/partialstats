@@ -1,5 +1,6 @@
-from typing import Protocol, Self
+from typing import Protocol, TypeVar
 
+S = TypeVar("S")
 
 class Partial(Protocol):
-    def __add__(self, other: Self) -> Self: ...
+    def __add__(self: S, other: S) -> S: ...
