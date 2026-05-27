@@ -1,12 +1,8 @@
-from ..partials import SumPartial
 from .core import Combiner
 
-sum_combiner = Combiner[SumPartial, float](
-    finalise=lambda x: x.sum,
+sum_combiner = Combiner[float, float](
+    finalise=lambda x: x,
 )
-"""Combines partial sums into a total sum."""
-
-count_combiner = Combiner[float, float](finalise=lambda x: x)
 
 max_combiner = Combiner[float, float](
     aggregate=lambda a, b: a if a > b else b, finalise=lambda x: x

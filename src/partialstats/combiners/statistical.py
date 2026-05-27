@@ -3,6 +3,16 @@ from math import sqrt
 from ..partials import SumPartial, SumOfSquaresPartial
 from .core import Combiner
 
+count_combiner = Combiner[SumPartial, float](
+    finalise=lambda x: x.count,
+)
+"""Combines SumPartials into a global count"""
+
+sum_combiner = Combiner[SumPartial, float](
+    finalise=lambda x: x.sum,
+)
+"""Combines SumPartials into a global sum"""
+
 mean_combiner = Combiner[SumPartial, float](
     finalise=lambda x: x.sum / x.count,
 )
