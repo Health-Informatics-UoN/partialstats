@@ -21,7 +21,7 @@ class PartialReducer(Generic[T, S]):
     """
 
     apply: Callable[[T], S]
-    merge: Callable[[S,S], S] = lambda a,b: a + b
+    merge: Callable[[S, S], S] = lambda a, b: a + b
 
     def reduce(self, rows: Iterable[T]) -> S:
         """
