@@ -7,6 +7,28 @@ from ..partials.protocol import S
 R = TypeVar("R")
 
 
+def build_combine_function(
+    aggregate: Callable[[S, S], S],
+    finalise: Callable[[S], R],
+):
+    """
+    Given functions for aggregating partial results and producing a final result, returns a function for calculating the final result.
+
+    Parameters
+    ----------
+    aggregate: Callable[[S,S],S]
+        A function for aggregation of partial results
+    finalise: Callable[[S], R]
+        A function for calculating the final desired result
+    """
+
+    def combine(partials: Iterable[S]):
+        first, *rest = partials
+        return finalise(reduce(aggregate, rest, first))
+
+    return combine
+
+
 @dataclass
 class Combiner(Generic[S, R]):
     """
