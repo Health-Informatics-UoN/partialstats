@@ -30,22 +30,23 @@ class PartialReducer(Generic[T, S]):
         first, *rest = map(self.apply, rows)
         return reduce(self.merge, rest, first)
 
+
 # Reducer implementations for reference
 
 count_reducer = PartialReducer[object, int](
-    merge=lambda a, b: a+b,
+    merge=lambda a, b: a + b,
     apply=lambda _: 1,
 )
 """Counts the number of rows in each partition."""
 
 sum_reducer = PartialReducer[float, MeanPartial](
-    merge=lambda a, b: a+b,
+    merge=lambda a, b: a + b,
     apply=lambda x: MeanPartial(sum=x, count=1),
 )
 """Accumulates the sum and count of values — sufficient to compute mean."""
 
 sum_of_squares_reducer = PartialReducer[float, VariancePartial](
-    merge=lambda a, b: a+b,
+    merge=lambda a, b: a + b,
     apply=lambda x: VariancePartial(sum=x, sum_of_squares=x * x, count=1),
 )
 """Accumulates sum, sum of squares, and count — sufficient to compute variance and std dev."""

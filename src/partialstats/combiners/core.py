@@ -24,16 +24,16 @@ def build_combine_function(
     finalise: Callable[[S], R]
         A function for calculating the final desired result
     """
+
     def combine(partials: Iterable[S]) -> R:
         first, *rest = partials
         return finalise(reduce(aggregate, rest, first))
+
     return combine
 
 
 class CombinerProtocol(Protocol[S_contra, R_co]):
-    def combine(self, partials: Iterable[S_contra]) -> R_co:
- 
-        ...
+    def combine(self, partials: Iterable[S_contra]) -> R_co: ...
 
 
 @final
@@ -47,6 +47,7 @@ class Combiner(Generic[S, R]):
         S: the type of the partial results produced by a PartialReducer
         R: the type of the final result
     """
+
     finalise: Callable[[S], R]
     aggregate: Callable[[S, S], S]
 
@@ -71,6 +72,7 @@ class SumCombiner(Generic[Adds, R]):
         Adds: the type of the partial results produced by a PartialReducer. Must implement the __add__ special method.
         R: the type of the final result
     """
+
     finalise: Callable[[Adds], R]
 
     def combine(self, partials: Iterable[Adds]) -> R:
