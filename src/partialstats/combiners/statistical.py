@@ -8,7 +8,7 @@ from ..partials.protocol import (
 )
 from .core import SumCombiner
 
-count_combiner = SumCombiner[CountPartialProtocol, float](
+count_combiner = SumCombiner[CountPartialProtocol, int](
     finalise=lambda x: x.count,
 )
 """Combines SumPartials into a global count"""

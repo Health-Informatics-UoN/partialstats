@@ -63,6 +63,14 @@ Adds = TypeVar("Adds", bound=AddsProtocol)
 @final
 @dataclass(frozen=True)
 class SumCombiner(Generic[Adds, R]):
+    """
+    Runs on the aggregator to combine partial results from all nodes into
+    the final statistic.
+
+    Type parameters:
+        Adds: the type of the partial results produced by a PartialReducer. Must implement the __add__ special method.
+        R: the type of the final result
+    """
     finalise: Callable[[Adds], R]
 
     def combine(self, partials: Iterable[Adds]) -> R:
