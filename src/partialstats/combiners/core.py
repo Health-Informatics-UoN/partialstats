@@ -5,10 +5,12 @@ from functools import reduce
 from partialstats.partials.protocol import AddsProtocol
 
 S = TypeVar("S")
+S_contra = TypeVar("S_contra", contravariant=True)
 R = TypeVar("R")
+R_co = TypeVar("R_co", covariant=True)
 
 
-def build_combine_function[S, R](
+def build_combine_function(
     aggregate: Callable[[S, S], S],
     finalise: Callable[[S], R],
 ):
@@ -22,23 +24,21 @@ def build_combine_function[S, R](
     finalise: Callable[[S], R]
         A function for calculating the final desired result
     """
-
-    def combine(partials: Iterable[S]):
+    def combine(partials: Iterable[S]) -> R:
         first, *rest = partials
         return finalise(reduce(aggregate, rest, first))
-
     return combine
 
 
-class CombinerProtocol(Protocol[S, R]):
-    finalise: Callable[[S], R]
-
-    def combine(self, partials: Iterable[S]) -> R: ...
+class CombinerProtocol(Protocol[S_contra, R_co]):
+    def combine(self, partials: Iterable[S_contra]) -> R_co:
+ 
+        ...
 
 
 @final
 @dataclass(frozen=True)
-class Combiner(CombinerProtocol[S, R]):
+class Combiner(Generic[S, R]):
     """
     Runs on the aggregator to combine partial results from all nodes into
     the final statistic.
@@ -47,7 +47,6 @@ class Combiner(CombinerProtocol[S, R]):
         S: the type of the partial results produced by a PartialReducer
         R: the type of the final result
     """
-
     finalise: Callable[[S], R]
     aggregate: Callable[[S, S], S]
 
@@ -63,11 +62,8 @@ Adds = TypeVar("Adds", bound=AddsProtocol)
 
 @final
 @dataclass(frozen=True)
-class SumCombiner(CombinerProtocol[Adds, R]):
+class SumCombiner(Generic[Adds, R]):
     finalise: Callable[[Adds], R]
 
-    def combine(self, partials: Iterable[S]) -> R:
-        """
-        Folds the partial results together using `aggregate`, then calls `finalise`.
-        """
+    def combine(self, partials: Iterable[Adds]) -> R:
         return build_combine_function(lambda a, b: a + b, self.finalise)(partials)
