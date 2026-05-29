@@ -1,10 +1,10 @@
 from typing import Self
 from dataclasses import dataclass
-from .protocol import Partial
+from .protocol import AddsProtocol, MeanPartialProtocol
 
 
 @dataclass
-class SumPartial(Partial):
+class MeanPartial(MeanPartialProtocol, AddsProtocol):
     """Partial result carrying a running sum and count."""
 
     sum: float
@@ -12,7 +12,3 @@ class SumPartial(Partial):
 
     def __add__(self, other: Self) -> Self:
         return type(self)(self.sum + other.sum, self.count + other.count)
-
-    @classmethod
-    def identity(cls) -> Self:
-        return cls(0, 0)

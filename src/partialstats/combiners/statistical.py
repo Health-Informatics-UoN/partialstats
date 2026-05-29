@@ -1,29 +1,34 @@
 from math import sqrt
 
-from ..partials import SumPartial, SumOfSquaresPartial
-from .core import Combiner
+from ..partials.protocol import (
+    CountPartialProtocol,
+    SumPartialProtocol,
+    MeanPartialProtocol,
+    VariancePartialProtocol,
+)
+from .core import SumCombiner
 
-count_combiner = Combiner[SumPartial, float](
+count_combiner = SumCombiner[CountPartialProtocol, float](
     finalise=lambda x: x.count,
 )
 """Combines SumPartials into a global count"""
 
-sum_combiner = Combiner[SumPartial, float](
+sum_combiner = SumCombiner[SumPartialProtocol, float](
     finalise=lambda x: x.sum,
 )
 """Combines SumPartials into a global sum"""
 
-mean_combiner = Combiner[SumPartial, float](
+mean_combiner = SumCombiner[MeanPartialProtocol, float](
     finalise=lambda x: x.sum / x.count,
 )
 """Combines SumPartials into a global mean."""
 
-variance_combiner = Combiner[SumOfSquaresPartial, float](
-    finalise=lambda x: x.sumsq / x.count - (x.sum / x.count) ** 2,
+variance_combiner = SumCombiner[VariancePartialProtocol, float](
+    finalise=lambda x: x.sum_of_squares / x.count - (x.sum / x.count) ** 2,
 )
 """Combines SumOfSquaresPartials into a global population variance."""
 
-std_combiner = Combiner[SumOfSquaresPartial, float](
-    finalise=lambda x: sqrt(x.sumsq / x.count - (x.sum / x.count) ** 2),
+std_combiner = SumCombiner[VariancePartialProtocol, float](
+    finalise=lambda x: sqrt(x.sum_of_squares / x.count - (x.sum / x.count) ** 2),
 )
 """Combines SumOfSquaresPartials into a global population standard deviation."""
