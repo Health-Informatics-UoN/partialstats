@@ -1,10 +1,13 @@
-from typing import TypeVar, Generic, Iterable, Callable
+from typing import TypeVar, Generic, Iterable, Callable, Protocol, final
 from dataclasses import dataclass
 from functools import reduce
 
-from ..partials.protocol import S
+from partialstats.partials.protocol import AddsProtocol
 
+S = TypeVar("S")
+S_contra = TypeVar("S_contra", contravariant=True)
 R = TypeVar("R")
+R_co = TypeVar("R_co", covariant=True)
 
 
 def build_combine_function(
@@ -22,14 +25,19 @@ def build_combine_function(
         A function for calculating the final desired result
     """
 
-    def combine(partials: Iterable[S]):
+    def combine(partials: Iterable[S]) -> R:
         first, *rest = partials
         return finalise(reduce(aggregate, rest, first))
 
     return combine
 
 
-@dataclass
+class CombinerProtocol(Protocol[S_contra, R_co]):
+    def combine(self, partials: Iterable[S_contra]) -> R_co: ...
+
+
+@final
+@dataclass(frozen=True)
 class Combiner(Generic[S, R]):
     """
     Runs on the aggregator to combine partial results from all nodes into
@@ -41,11 +49,31 @@ class Combiner(Generic[S, R]):
     """
 
     finalise: Callable[[S], R]
-    aggregate: Callable[[S, S], S] = lambda a, b: a + b
+    aggregate: Callable[[S, S], S]
 
     def combine(self, partials: Iterable[S]) -> R:
         """
         Folds the partial results together using `aggregate`, then calls `finalise`.
         """
-        first, *rest = partials
-        return self.finalise(reduce(self.aggregate, rest, first))
+        return build_combine_function(self.aggregate, self.finalise)(partials)
+
+
+Adds = TypeVar("Adds", bound=AddsProtocol)
+
+
+@final
+@dataclass(frozen=True)
+class SumCombiner(Generic[Adds, R]):
+    """
+    Runs on the aggregator to combine partial results from all nodes into
+    the final statistic.
+
+    Type parameters:
+        Adds: the type of the partial results produced by a PartialReducer. Must implement the __add__ special method.
+        R: the type of the final result
+    """
+
+    finalise: Callable[[Adds], R]
+
+    def combine(self, partials: Iterable[Adds]) -> R:
+        return build_combine_function(lambda a, b: a + b, self.finalise)(partials)

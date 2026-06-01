@@ -1,6 +1,7 @@
 from .core import Combiner
 
 sum_combiner = Combiner[float, float](
+    aggregate=lambda a, b: a + b,
     finalise=lambda x: x,
 )
 

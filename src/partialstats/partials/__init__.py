@@ -1,5 +1,4 @@
-from .protocol import Partial
-from .sum import SumPartial
-from .sum_of_squares import SumOfSquaresPartial
+from .mean import MeanPartial
+from .variance import VariancePartial
 
-__all__ = ["Partial", "SumPartial", "SumOfSquaresPartial"]
+__all__ = ["MeanPartial", "VariancePartial"]
