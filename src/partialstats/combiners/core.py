@@ -10,12 +10,13 @@ R = TypeVar("R")
 R_co = TypeVar("R_co", covariant=True)
 
 
-def build_combine_function(
+def aggregate_transform(
     aggregate: Callable[[S, S], S],
     finalise: Callable[[S], R],
+    partials: Iterable[S],
 ):
     """
-    Given functions for aggregating partial results and producing a final result, returns a function for calculating the final result.
+    Given functions for aggregating partial results and producing a final result, returns the final result
 
     Parameters
     ----------
@@ -23,13 +24,12 @@ def build_combine_function(
         A function for aggregation of partial results
     finalise: Callable[[S], R]
         A function for calculating the final desired result
+    partials: Iterable[S]
+        An iterable of type S to be transformed
     """
 
-    def combine(partials: Iterable[S]) -> R:
-        first, *rest = partials
-        return finalise(reduce(aggregate, rest, first))
+    return finalise(reduce(aggregate, partials))
 
-    return combine
 
 
 class CombinerProtocol(Protocol[S_contra, R_co]):
@@ -55,7 +55,7 @@ class Combiner(Generic[S, R]):
         """
         Folds the partial results together using `aggregate`, then calls `finalise`.
         """
-        return build_combine_function(self.aggregate, self.finalise)(partials)
+        return aggregate_transform(self.aggregate, self.finalise, partials)
 
 
 Adds = TypeVar("Adds", bound=AddsProtocol)
@@ -76,4 +76,4 @@ class SumCombiner(Generic[Adds, R]):
     finalise: Callable[[Adds], R]
 
     def combine(self, partials: Iterable[Adds]) -> R:
-        return build_combine_function(lambda a, b: a + b, self.finalise)(partials)
+        return aggregate_transform(lambda a, b: a + b, self.finalise, partials)
