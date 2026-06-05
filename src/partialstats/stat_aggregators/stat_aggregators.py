@@ -8,11 +8,11 @@ from partialstats.partial_results.protocol import (
     VariancePartialProtocol,
 )
 from ..aggregate_transforms.statistical import (
-    count_combiner,
-    sum_combiner,
-    mean_combiner,
-    variance_combiner,
-    std_combiner,
+    count,
+    sum,
+    mean,
+    variance,
+    std,
 )
 
 P = TypeVar("P")
@@ -37,7 +37,7 @@ class CountAggregator(StatAggregator[CountPartialProtocol]):
 
     @property
     def count(self) -> int:
-        return count_combiner(self.data)
+        return count(self.data)
 
 
 class SumAggregator(StatAggregator[SumPartialProtocol]):
@@ -47,7 +47,7 @@ class SumAggregator(StatAggregator[SumPartialProtocol]):
 
     @property
     def sum(self) -> float:
-        return sum_combiner(self.data)
+        return sum(self.data)
 
 
 class MeanAggregator(StatAggregator[MeanPartialProtocol]):
@@ -64,15 +64,15 @@ class MeanAggregator(StatAggregator[MeanPartialProtocol]):
 
     @property
     def count(self) -> int:
-        return count_combiner(self.data)
+        return count(self.data)
 
     @property
     def sum(self) -> float:
-        return sum_combiner(self.data)
+        return sum(self.data)
 
     @property
     def mean(self) -> float:
-        return mean_combiner(self.data)
+        return mean(self.data)
 
 
 class VarianceAggregator(StatAggregator[VariancePartialProtocol]):
@@ -92,20 +92,20 @@ class VarianceAggregator(StatAggregator[VariancePartialProtocol]):
 
     @property
     def count(self) -> int:
-        return count_combiner(self.data)
+        return count(self.data)
 
     @property
     def sum(self) -> float:
-        return sum_combiner(self.data)
+        return sum(self.data)
 
     @property
     def mean(self) -> float:
-        return mean_combiner(self.data)
+        return mean(self.data)
 
     @property
     def variance(self) -> float:
-        return variance_combiner(self.data)
+        return variance(self.data)
 
     @property
     def std(self) -> float:
-        return std_combiner(self.data)
+        return std(self.data)
