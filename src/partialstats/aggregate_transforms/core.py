@@ -24,12 +24,14 @@ def aggregate_transform(
     partials: Iterable[S]
         An iterable of type S to be transformed
     """
+    first, *rest = partials
 
-    return finalise(reduce(aggregate, partials))
+    return finalise(reduce(aggregate, rest, first))
 
 
 Adds = TypeVar("Adds", bound=AddsProtocol)
 
 
 def sum_and_transform(finalise: Callable[[Adds], R], partials: Iterable[Adds]) -> R:
-    return finalise(reduce(lambda a, b: a + b, partials))
+    first, *rest = partials
+    return finalise(reduce(lambda a, b: a + b, rest, first))

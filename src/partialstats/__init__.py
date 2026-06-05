@@ -2,7 +2,6 @@
 partialstats — distributed statistical aggregation via partial results.
 """
 
-from .partials import MeanPartial, VariancePartial
-from .combiners import Combiner
+from .partial_results import MeanPartial, VariancePartial, SumSumSqCountPartial
 
-__all__ = ["Combiner", "MeanPartial", "VariancePartial"]
+__all__ = ["MeanPartial", "VariancePartial", "SumSumSqCountPartial"]

@@ -1,11 +1,10 @@
-from .core import Combiner, CombinerProtocol, SumCombiner
-from .statistical import mean_combiner, variance_combiner, std_combiner
+from .core import aggregate_transform, sum_and_transform
+from .statistical import mean, variance, std
 
 __all__ = [
-    "Combiner",
-    "CombinerProtocol",
-    "SumCombiner",
-    "mean_combiner",
-    "variance_combiner",
-    "std_combiner",
+    "aggregate_transform",
+    "sum_and_transform",
+    "mean",
+    "variance",
+    "std",
 ]

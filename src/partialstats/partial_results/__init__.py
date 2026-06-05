@@ -1,4 +1,4 @@
 from .mean import MeanPartial
-from .variance import VariancePartial
+from .variance import VariancePartial, SumSumSqCountPartial
 
-__all__ = ["MeanPartial", "VariancePartial"]
+__all__ = ["MeanPartial", "VariancePartial", "SumSumSqCountPartial"]

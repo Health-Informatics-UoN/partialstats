@@ -2,8 +2,7 @@ from typing import Callable, Iterable, Generic, TypeVar
 from dataclasses import dataclass
 from functools import reduce
 
-from ..partials import MeanPartial, VariancePartial
-from ..combiners import CombinerProtocol
+from ..partial_results import MeanPartial, SumSumSqCountPartial
 
 T = TypeVar("T")
 S = TypeVar("S")
@@ -45,9 +44,9 @@ sum_reducer = PartialReducer[float, MeanPartial](
 )
 """Accumulates the sum and count of values — sufficient to compute mean."""
 
-sum_of_squares_reducer = PartialReducer[float, VariancePartial](
+sum_of_squares_reducer = PartialReducer[float, SumSumSqCountPartial](
     merge=lambda a, b: a + b,
-    apply=lambda x: VariancePartial(sum=x, sum_of_squares=x * x, count=1),
+    apply=lambda x: SumSumSqCountPartial(sum=x, sum_of_squares=x * x, count=1),
 )
 """Accumulates sum, sum of squares, and count — sufficient to compute variance and std dev."""
 
@@ -78,7 +77,7 @@ class DistributedStat(Generic[T, S, R]):
     """
 
     reducer: PartialReducer[T, S]
-    combiner: CombinerProtocol[S, R]
+    combiner: Callable[[Iterable[S]], R]
 
     def compute(self, partitions: Iterable[Iterable[T]]) -> R:
         """
@@ -91,4 +90,4 @@ class DistributedStat(Generic[T, S, R]):
             The final aggregated statistic.
         """
         partials: Iterable[S] = map(self.reducer.reduce, partitions)
-        return self.combiner.combine(partials)
+        return self.combiner(partials)
