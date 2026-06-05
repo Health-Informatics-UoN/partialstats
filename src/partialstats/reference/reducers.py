@@ -2,11 +2,10 @@ from typing import Callable, Iterable, Generic, TypeVar
 from dataclasses import dataclass
 from functools import reduce
 
-from ..partials import SumPartial, SumOfSquaresPartial
-from ..partials.protocol import S
-from ..combiners import Combiner
+from ..partial_results import MeanPartial, SumSumSqCountPartial
 
 T = TypeVar("T")
+S = TypeVar("S")
 R = TypeVar("R")
 
 
@@ -21,7 +20,7 @@ class PartialReducer(Generic[T, S]):
     """
 
     apply: Callable[[T], S]
-    merge: Callable[[S, S], S] = lambda a, b: a + b
+    merge: Callable[[S, S], S]
 
     def reduce(self, rows: Iterable[T]) -> S:
         """
@@ -34,17 +33,20 @@ class PartialReducer(Generic[T, S]):
 # Reducer implementations for reference
 
 count_reducer = PartialReducer[object, int](
+    merge=lambda a, b: a + b,
     apply=lambda _: 1,
 )
 """Counts the number of rows in each partition."""
 
-sum_reducer = PartialReducer[float, SumPartial](
-    apply=lambda x: SumPartial(sum=x, count=1),
+sum_reducer = PartialReducer[float, MeanPartial](
+    merge=lambda a, b: a + b,
+    apply=lambda x: MeanPartial(sum=x, count=1),
 )
 """Accumulates the sum and count of values — sufficient to compute mean."""
 
-sum_of_squares_reducer = PartialReducer[float, SumOfSquaresPartial](
-    apply=lambda x: SumOfSquaresPartial(sum=x, sumsq=x * x, count=1),
+sum_of_squares_reducer = PartialReducer[float, SumSumSqCountPartial](
+    merge=lambda a, b: a + b,
+    apply=lambda x: SumSumSqCountPartial(sum=x, sum_of_squares=x * x, count=1),
 )
 """Accumulates sum, sum of squares, and count — sufficient to compute variance and std dev."""
 
@@ -75,7 +77,7 @@ class DistributedStat(Generic[T, S, R]):
     """
 
     reducer: PartialReducer[T, S]
-    combiner: Combiner[S, R]
+    combiner: Callable[[Iterable[S]], R]
 
     def compute(self, partitions: Iterable[Iterable[T]]) -> R:
         """
@@ -88,4 +90,4 @@ class DistributedStat(Generic[T, S, R]):
             The final aggregated statistic.
         """
         partials: Iterable[S] = map(self.reducer.reduce, partitions)
-        return self.combiner.combine(partials)
+        return self.combiner(partials)
