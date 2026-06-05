@@ -36,7 +36,8 @@ def variance(partials: Iterable[SumSumSqCountPartialProtocol]) -> float: ...
 
 def variance(partials) -> float:
     """Combines partial results into a global population variance."""
-    probe = list(partials)[0]
+    partials = list(partials)
+    probe = partials[0]
     if (
         hasattr(probe, "sum")
         & hasattr(probe, "sum_of_squares")
@@ -48,9 +49,14 @@ def variance(partials) -> float:
     else:
         return sum_and_transform(lambda x: x.variance, partials)
 
+@overload
+def std(partials: Iterable[VariancePartialProtocol]) -> float: ...
 
-def std(partials: Iterable[SumSumSqCountPartialProtocol]) -> float:
-    """Combines partial results into a global population standard deviation."""
-    return sum_and_transform(
-        lambda x: sqrt(x.sum_of_squares / x.count - (x.sum / x.count) ** 2), partials
-    )
+
+@overload
+def std(partials: Iterable[SumSumSqCountPartialProtocol]) -> float: ...
+
+
+def std(partials) -> float:
+    """Combines partial results into a global population variance."""
+    return sqrt(variance(partials))
