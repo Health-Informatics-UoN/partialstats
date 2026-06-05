@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 from typing import TypeVar, Generic
 
-from partialstats.partials.protocol import (
+from partialstats.partial_results.protocol import (
     CountPartialProtocol,
     MeanPartialProtocol,
     SumPartialProtocol,
     VariancePartialProtocol,
 )
-from ..combiners.statistical import (
+from ..aggregate_transforms.statistical import (
     count_combiner,
     sum_combiner,
     mean_combiner,
@@ -37,7 +37,7 @@ class CountAggregator(StatAggregator[CountPartialProtocol]):
 
     @property
     def count(self) -> int:
-        return count_combiner.combine(self.data)
+        return count_combiner(self.data)
 
 
 class SumAggregator(StatAggregator[SumPartialProtocol]):
@@ -47,7 +47,7 @@ class SumAggregator(StatAggregator[SumPartialProtocol]):
 
     @property
     def sum(self) -> float:
-        return sum_combiner.combine(self.data)
+        return sum_combiner(self.data)
 
 
 class MeanAggregator(StatAggregator[MeanPartialProtocol]):
@@ -64,15 +64,15 @@ class MeanAggregator(StatAggregator[MeanPartialProtocol]):
 
     @property
     def count(self) -> int:
-        return count_combiner.combine(self.data)
+        return count_combiner(self.data)
 
     @property
     def sum(self) -> float:
-        return sum_combiner.combine(self.data)
+        return sum_combiner(self.data)
 
     @property
     def mean(self) -> float:
-        return mean_combiner.combine(self.data)
+        return mean_combiner(self.data)
 
 
 class VarianceAggregator(StatAggregator[VariancePartialProtocol]):
@@ -92,20 +92,20 @@ class VarianceAggregator(StatAggregator[VariancePartialProtocol]):
 
     @property
     def count(self) -> int:
-        return count_combiner.combine(self.data)
+        return count_combiner(self.data)
 
     @property
     def sum(self) -> float:
-        return sum_combiner.combine(self.data)
+        return sum_combiner(self.data)
 
     @property
     def mean(self) -> float:
-        return mean_combiner.combine(self.data)
+        return mean_combiner(self.data)
 
     @property
     def variance(self) -> float:
-        return variance_combiner.combine(self.data)
+        return variance_combiner(self.data)
 
     @property
     def std(self) -> float:
-        return std_combiner.combine(self.data)
+        return std_combiner(self.data)
