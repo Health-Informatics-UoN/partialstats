@@ -3,7 +3,7 @@ from typing import Iterable, overload
 
 from ..partial_results.protocol import (
     CountPartialProtocol,
-    SumCountPartial,
+    SumCountPartialProtocol,
     SumPartialProtocol,
     SumSumSqCountPartialProtocol,
     VariancePartialProtocol,
@@ -21,7 +21,7 @@ def sum(partials: Iterable[SumPartialProtocol]) -> float:
     return sum_and_transform(lambda x: x.sum, partials)
 
 
-def mean(partials: Iterable[SumCountPartial]) -> float:
+def mean(partials: Iterable[SumCountPartialProtocol]) -> float:
     """Combines partial results into a global mean."""
     return sum_and_transform(lambda x: x.sum / x.count, partials)
 
