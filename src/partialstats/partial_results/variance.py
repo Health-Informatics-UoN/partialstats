@@ -1,10 +1,15 @@
+from math import hypot
 from typing import Self
 from dataclasses import dataclass
-from .protocol import AddsProtocol, VariancePartialProtocol
+from .protocol import (
+    AddsProtocol,
+    SumSumSqCountPartialProtocol,
+    VariancePartialProtocol,
+)
 
 
 @dataclass
-class VariancePartial(VariancePartialProtocol, AddsProtocol):
+class SumSumSqCountPartial(SumSumSqCountPartialProtocol, AddsProtocol):
     """Partial result carrying a running sum, sum of squares, and count."""
 
     sum: float
@@ -17,3 +22,13 @@ class VariancePartial(VariancePartialProtocol, AddsProtocol):
             self.sum_of_squares + other.sum_of_squares,
             self.count + other.count,
         )
+
+
+@dataclass
+class VariancePartial(VariancePartialProtocol, AddsProtocol):
+    """Partial result carrying the running pythagorean sum of variance"""
+
+    variance: float
+
+    def __add__(self, other: Self) -> Self:
+        return type(self)(hypot(self.variance, other.variance))

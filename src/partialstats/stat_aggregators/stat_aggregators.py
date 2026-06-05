@@ -3,9 +3,9 @@ from typing import TypeVar, Generic
 
 from partialstats.partial_results.protocol import (
     CountPartialProtocol,
-    MeanPartialProtocol,
+    SumCountPartialProtocol,
     SumPartialProtocol,
-    VariancePartialProtocol,
+    SumSumSqCountPartialProtocol,
 )
 from ..aggregate_transforms.statistical import (
     count,
@@ -50,7 +50,7 @@ class SumAggregator(StatAggregator[SumPartialProtocol]):
         return sum(self.data)
 
 
-class MeanAggregator(StatAggregator[MeanPartialProtocol]):
+class MeanAggregator(StatAggregator[SumCountPartialProtocol]):
     """
     Class that can:
     - Hold data compatible with the MeanPartialProtocol
@@ -75,10 +75,10 @@ class MeanAggregator(StatAggregator[MeanPartialProtocol]):
         return mean(self.data)
 
 
-class VarianceAggregator(StatAggregator[VariancePartialProtocol]):
+class VarianceAggregator(StatAggregator[SumSumSqCountPartialProtocol]):
     """
     Class that can:
-    - Hold data compatible with the VariancePartialProtocol
+    - Hold data compatible with the SumSumSqCountPartialProtocol
         - count
         - sum
         - sum_of_squares

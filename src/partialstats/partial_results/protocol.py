@@ -13,13 +13,17 @@ class SumPartialProtocol(AddsProtocol, Protocol):
     sum: float
 
 
-class MeanPartialProtocol(CountPartialProtocol, SumPartialProtocol, Protocol): ...
+class SumCountPartialProtocol(CountPartialProtocol, SumPartialProtocol, Protocol): ...
 
 
 class SumOfSquaresPartialProtocol(AddsProtocol, Protocol):
     sum_of_squares: float
 
 
-class VariancePartialProtocol(
-    MeanPartialProtocol, SumOfSquaresPartialProtocol, Protocol
+class SumSumSqCountPartialProtocol(
+    SumCountPartialProtocol, SumOfSquaresPartialProtocol, Protocol
 ): ...
+
+
+class VariancePartialProtocol(Protocol):
+    variance: float
