@@ -49,6 +49,7 @@ def variance(partials) -> float:
     else:
         return sum_and_transform(lambda x: x.variance, partials)
 
+
 @overload
 def std(partials: Iterable[VariancePartialProtocol]) -> float: ...
 
